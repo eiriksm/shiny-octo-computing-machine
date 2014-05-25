@@ -1,32 +1,44 @@
+<!DOCTYPE html>
 <html>
-  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
-  <style>
-    h1 {
-      font-family: Helvetica;
-      text-align: center;
-      font-size: 12em;
-      font-weight: 300;
-    }
-    iframe {
-      display: none;
-    }
-  </style>
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      h1 {
+        font-family: Helvetica;
+        text-align: center;
+        font-size: 12em;
+        font-weight: 300;
+      }
+      iframe {
+        display: none;
+      }
+    </style>
+  </head>
   <body>
-    <input id="target" type="text" />
+    <input id="target_above" type="text" placeholder="alarm ved høy temp"/>
+    <input id="target_below" type="text" placeholder="alarm ved lav temp"/>
     <h1 id="temp"></h1>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script>
       $(document).ready(function() {
         var notified;
+        var notify = function() {
+          notified = true;
+          $('body').append('<iframe src="//www.youtube.com/embed/FoX7vd30zq8?autoplay=1"></iframe>');
+        };
         var fetchTemp = function() {
           $.ajax({
             url: "http://10.0.0.20:1337",
             success: function(d) {
               $('#temp').text(d);
-              var target = parseInt($('#target').val(), 10);
+              var target_above = parseInt($('#target_above').val(), 10);
+              var target_below = parseInt($('#target_below').val(), 10);
               var val = parseInt(d, 10);
-              if (val < target && !notified) {
-                notified = true;
-                $('body').append('<iframe src="//www.youtube.com/embed/FoX7vd30zq8?autoplay=1"></iframe>');
+              if (val < target_below && !notified) {
+                notify();
+              }
+              if (val > target_above && !notified) {
+                notify();
               }
               setTimeout(fetchTemp, 2000);
             },
@@ -34,7 +46,7 @@
               alert('Error. Reload please!');
             }
           });
-        }
+        };
         fetchTemp();
       });
     </script>
