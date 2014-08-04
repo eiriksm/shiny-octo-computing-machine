@@ -21,15 +21,25 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
     <script>
       $(document).ready(function() {
+        var tb = localStorage.getItem('shiny_below');
+        if (tb) {
+          $('#target_below').val(tb);
+        }
+        var ta = localStorage.getItem('shiny_above');
+        if (ta) {
+          $('#target_above').val(ta);
+        }
         var notified;
         var notify = function() {
           notified = true;
           $('body').append('<iframe src="//www.youtube.com/embed/FoX7vd30zq8?autoplay=1"></iframe>');
         };
+        var retries = 0;
         var fetchTemp = function() {
           $.ajax({
             url: "http://10.0.0.20:1337",
             success: function(d) {
+              retries = 0;
               $('#temp').text(d);
               var target_above = parseInt($('#target_above').val(), 10);
               var target_below = parseInt($('#target_below').val(), 10);
@@ -43,11 +53,26 @@
               setTimeout(fetchTemp, 2000);
             },
             error: function() {
+              // Try to reconnect.
+              if (retries < 8) {
+                retries++;
+                console.log('Retrying. Try number ' + retries);
+                setTimeout(fetchTemp, 2000);
+                return;
+              }
               alert('Error. Reload please!');
             }
           });
         };
         fetchTemp();
+        $('#target_below').change(function() {
+          // Remember this until next time.
+          localStorage.setItem('shiny_below', $(this).val());
+        });
+        $('#target_above').change(function() {
+          // Remember this until next time.
+          localStorage.setItem('shiny_above', $(this).val());
+        });
       });
     </script>
   </body>
