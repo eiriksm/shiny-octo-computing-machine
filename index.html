@@ -2,78 +2,61 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <link type="text/css" rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css">
+    <link type="text/css" rel="stylesheet" href="http://code.shutterstock.com/rickshaw/src/css/graph.css">
+    <link type="text/css" rel="stylesheet" href="http://code.shutterstock.com/rickshaw/src/css/detail.css">
+    <link type="text/css" rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.2.0/css/font-awesome.min.css">
+
     <style>
-      h1 {
+      body {
         font-family: Helvetica;
+      }
+      h1 {
         text-align: center;
         font-size: 12em;
         font-weight: 300;
+        margin: 0;
       }
       iframe {
         display: none;
       }
+      .controls {
+        text-align: center;
+        width: 100%;
+      }
+      .controls input {
+        font-size: 1.5em;
+        padding: 0 .4em;
+        width: 30px;
+      }
+      #content {
+        width: 800px;
+        margin: auto;
+      }
+      i.fa {
+        font-size: 2em;
+      }
     </style>
   </head>
   <body>
-    <input id="target_above" type="text" placeholder="alarm ved høy temp"/>
-    <input id="target_below" type="text" placeholder="alarm ved lav temp"/>
-    <h1 id="temp"></h1>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
-    <script>
-      $(document).ready(function() {
-        var tb = localStorage.getItem('shiny_below');
-        if (tb) {
-          $('#target_below').val(tb);
-        }
-        var ta = localStorage.getItem('shiny_above');
-        if (ta) {
-          $('#target_above').val(ta);
-        }
-        var notified;
-        var notify = function() {
-          notified = true;
-          $('body').append('<iframe src="//www.youtube.com/embed/FoX7vd30zq8?autoplay=1"></iframe>');
-        };
-        var retries = 0;
-        var fetchTemp = function() {
-          $.ajax({
-            url: "http://10.0.0.20:1337",
-            success: function(d) {
-              retries = 0;
-              $('#temp').text(d);
-              var target_above = parseInt($('#target_above').val(), 10);
-              var target_below = parseInt($('#target_below').val(), 10);
-              var val = parseInt(d, 10);
-              if (val < target_below && !notified) {
-                notify();
-              }
-              if (val > target_above && !notified) {
-                notify();
-              }
-              setTimeout(fetchTemp, 2000);
-            },
-            error: function() {
-              // Try to reconnect.
-              if (retries < 8) {
-                retries++;
-                console.log('Retrying. Try number ' + retries);
-                setTimeout(fetchTemp, 2000);
-                return;
-              }
-              alert('Error. Reload please!');
-            }
-          });
-        };
-        fetchTemp();
-        $('#target_below').change(function() {
-          // Remember this until next time.
-          localStorage.setItem('shiny_below', $(this).val());
-        });
-        $('#target_above').change(function() {
-          // Remember this until next time.
-          localStorage.setItem('shiny_above', $(this).val());
-        });
-      });
-    </script>
+    <div id="content">
+      <div class="controls">
+        <i class="fa fa-bell"></i>
+        <div class="content">
+          <label for="target_above"><i class="fa fa-arrow-circle-up"></i></label><input id="target_above" type="text" placeholder=""/>°C
+          <label for="target_below"><i class="fa fa-arrow-circle-down"></i></label><input id="target_below" type="text" placeholder=""/>°C
+        </div>
+      </div>
+      <div id="chart_container">
+        <div id="chart"></div>
+        <div id="preview"></div>
+      </div>
+      <h1 id="temp"></h1>
+    </div>
+    <script src="http://code.shutterstock.com/rickshaw/vendor/d3.v3.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/rickshaw/1.5.1/rickshaw.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.15/jquery-ui.min.js"></script>
+    <script src="js/script.js"></script>
   </body>
 </html>
